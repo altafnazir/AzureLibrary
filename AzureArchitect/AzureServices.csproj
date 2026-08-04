@@ -1,0 +1,30 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="EventGridEventHubsExtensions.cs" />
+    <Compile Remove="EventGridPublisher.cs" />
+    <Compile Remove="EventHubManager.cs" />
+    <Compile Remove="EventHubsPublisher.cs" />
+    <Compile Remove="EventHubsSubscriber.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Azure" Version="1.14.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.3" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.3" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="10.0.3" />
+    <PackageReference Include="Azure.Messaging.ServiceBus" Version="7.20.2" />
+  </ItemGroup>
+
+  <!--<ItemGroup>
+    --><!-- Reference the AzureArchitect class library project so its extension methods and types are available --><!--
+    <ProjectReference Include="src\AzureArchitect\AzureArchitect.csproj" />
+  </ItemGroup>-->
+
+</Project>
