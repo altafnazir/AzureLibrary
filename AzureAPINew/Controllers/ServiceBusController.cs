@@ -225,7 +225,7 @@ namespace AzureAPINew.Controllers
         }
 
         /// <summary>
-        /// Retrieve multiple messages from queue Retrieve
+        /// Retrieve multiple messages from queue
         /// </summary>
         /// <param name="queueName"></param>
         /// <param name="maxMessages"></param>
