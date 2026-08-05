@@ -60,7 +60,14 @@ builder.Services.AddSwaggerGen(c =>
     builder.Services.AddSingleton(serviceBusProcessorOptions);
 
     // If your ServiceBusService depends on IServiceBusService, register it
-    builder.Services.AddScoped<IServiceBusService, ServiceBusService>();
+    builder.Services.AddSingleton<ServiceBusService>();
+
+    builder.Services.AddSingleton<IMessagingService>(
+        sp => sp.GetRequiredService<ServiceBusService>());
+
+    builder.Services.AddSingleton<IServiceBusService>(
+        sp => sp.GetRequiredService<ServiceBusService>());
+
     Azure.Core.Diagnostics.AzureEventSourceListener.CreateConsoleLogger();
 }
 

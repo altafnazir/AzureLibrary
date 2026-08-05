@@ -1,16 +1,8 @@
-﻿using Azure.Messaging.ServiceBus;
-using AzureArchitect.Common;
-using AzureArchitect.Extensions;
-using AzureServices.Extensions;
-using AzureArchitect.Facade;
+﻿using AzureArchitect.Facade;
 using AzureServices.Entity;
+using AzureServices.Extensions;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.Amqp.Framing;
-using Microsoft.Extensions.Options;
-using System.ComponentModel.DataAnnotations;
-using System.Runtime.Intrinsics.Arm;
 using System.Text.Json;
-using System.Threading;
 
 namespace AzureAPINew.Controllers
 {
@@ -18,12 +10,12 @@ namespace AzureAPINew.Controllers
     [Route("api/[controller]")]
     public class ServiceBusController : ControllerBase
     {
-        private readonly IServiceBusService _serviceBus;
+        private readonly IMessagingService _messagingService;
         private readonly ILogger<ServiceBusController> _logger;
 
-        public ServiceBusController(IServiceBusService serviceBus, ILogger<ServiceBusController> logger)
+        public ServiceBusController(IMessagingService messagingService, ILogger<ServiceBusController> logger)
         {
-            _serviceBus = serviceBus;
+            _messagingService = messagingService;
             _logger = logger;
         }
 
@@ -39,7 +31,7 @@ namespace AzureAPINew.Controllers
 
             try
             {
-                await _serviceBus.SendMessageAsync(queueName, messageJson);
+                await _messagingService.SendMessageAsync(queueName, messageJson);
                 return Accepted();
             }
             catch (EntityNotFoundException ex)
@@ -70,7 +62,7 @@ namespace AzureAPINew.Controllers
 
             try
             {
-                await _serviceBus.SendMessageBatchAsync(queueName, batchItems);
+                await _messagingService.SendMessageBatchAsync(queueName, batchItems);
                 return Accepted();
             }
             catch (EntityNotFoundException ex)
@@ -91,7 +83,7 @@ namespace AzureAPINew.Controllers
 
             try
             {
-                await _serviceBus.SendMessageAsync(topicName, messageJson, new Dictionary<string, object>
+                await _messagingService.SendMessageAsync(topicName, messageJson, new Dictionary<string, object>
                                         {
                                         { "Department", message!.Department },
                                         { "ValidDepartment", message.IsDepartmentValid() }
@@ -133,7 +125,7 @@ namespace AzureAPINew.Controllers
 
             try
             {
-                await _serviceBus.SendMessageBatchAsync(topicName, batchItems);
+                await _messagingService.SendMessageBatchAsync(topicName, batchItems);
                 return Accepted();
             }
             catch (EntityNotFoundException ex)
@@ -159,7 +151,7 @@ namespace AzureAPINew.Controllers
         {
             try
             {
-                var msg = await _serviceBus.ReceiveSingleMessageFromSubscription<ServiceBusData>(topicName, subscriptionName);
+                var msg = await _messagingService.ReceiveSingleMessageFromSubscription<ServiceBusData>(topicName, subscriptionName);
                 if (msg == null)
                     return NoContent();
 
@@ -185,7 +177,7 @@ namespace AzureAPINew.Controllers
         {
             try
             {
-                var receivedMessages = await _serviceBus.ReceiveMessagesFromSubscription<ServiceBusData>(topicName, subscriptionName, maxMessages);
+                var receivedMessages = await _messagingService.ReceiveMessagesFromSubscription<ServiceBusData>(topicName, subscriptionName, maxMessages);
 
                 if (receivedMessages == null || receivedMessages.Count == 0)
                     return NoContent();
@@ -210,7 +202,7 @@ namespace AzureAPINew.Controllers
         {
             try
             {
-                var msg = await _serviceBus.ReceiveSingleMessageFromQueue<ServiceBusData>(queueName);
+                var msg = await _messagingService.ReceiveSingleMessageFromQueue<ServiceBusData>(queueName);
                 if (msg == null)
                     return NoContent();
 
@@ -235,7 +227,7 @@ namespace AzureAPINew.Controllers
         {
             try
             {
-                var receivedMessages = await _serviceBus.ReceiveMessagesFromQueue<ServiceBusData>(queueName, maxMessages);
+                var receivedMessages = await _messagingService.ReceiveMessagesFromQueue<ServiceBusData>(queueName, maxMessages);
 
                 if (receivedMessages == null || receivedMessages.Count == 0)
                     return NoContent();

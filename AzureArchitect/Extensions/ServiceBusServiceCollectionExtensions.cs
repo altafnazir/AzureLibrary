@@ -59,7 +59,13 @@ namespace AzureArchitect.Extensions
             });
 
             // Register wrapper service
-            services.AddSingleton<IServiceBusService, ServiceBusService>();
+            services.AddSingleton<ServiceBusService>();
+
+            services.AddSingleton<IMessagingService>(
+                sp => sp.GetRequiredService<ServiceBusService>());
+
+            services.AddSingleton<IServiceBusService>(
+                sp => sp.GetRequiredService<ServiceBusService>());
 
             return services;
         }

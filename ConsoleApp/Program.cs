@@ -1,15 +1,12 @@
 ﻿using Azure.Messaging.ServiceBus;
 using Azure.Messaging.ServiceBus.Administration;
-using AzureArchitect.Common;
 using AzureArchitect.Extensions;
 using AzureArchitect.Facade;
-using AzureArchitect.Services;
+using AzureServices.Entity;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text.Json;
 
 var queueName = "message-queue";
@@ -63,19 +60,20 @@ using IHost host = Host.CreateDefaultBuilder(args)
 var logger = host.Services.GetRequiredService<ILogger<Program>>();
 logger.LogInformation("Host built; ServiceBus client configured.");
 
-var serviceBus = host.Services.GetRequiredService<IServiceBusService>();
+var serviceBusService = host.Services.GetRequiredService<IServiceBusService>();
+var messagingService = host.Services.GetRequiredService<IMessagingService>();
 
 #region Admin
 
-await serviceBus.CreateQueueAsync(queueName);
-await serviceBus.CreateTopicAsync(topicName);
+await messagingService.CreateQueueAsync(queueName);
+await messagingService.CreateTopicAsync(topicName);
 
 foreach (var vd in validDepartments)
 {
-    await serviceBus.CreateSubscriptionAsync(topicName, $"{vd}Subscription", $"Department = '{vd}' AND ValidDepartment = true");
+    await messagingService.CreateSubscriptionAsync(topicName, $"{vd}Subscription", $"Department = '{vd}' AND ValidDepartment = true");
 }
 
-await serviceBus.CreateSubscriptionAsync(topicName, "InvalidDepartment", "ValidDepartment = false");
+await messagingService.CreateSubscriptionAsync(topicName, "InvalidDepartment", "ValidDepartment = false");
 
 #endregion Admin
 
@@ -113,7 +111,7 @@ var testDepartment = new[] { "HR", "IT", "Finance" };
 
 //    messageJson = JsonSerializer.Serialize(message);
 
-//    await serviceBus.SendMessageAsync(topicName, messageJson,
+//    await messagingService.SendMessageAsync(topicName, messageJson,
 //                                        new Dictionary<string, object>
 //                                        {
 //                                        { "Department", message.Department },
@@ -125,20 +123,11 @@ var testDepartment = new[] { "HR", "IT", "Finance" };
 
 #region Receive
 
-//foreach (var dep in testDepartment)
-//{
-//    var subMessage = await serviceBus.ReceiveSubscriptionMessageAsync(topicName, $"{dep}Subscription");
-
-//    var messageObject = JsonSerializer.Deserialize<ServiceBusData>(subMessage!);
-
-//    Console.WriteLine($"Message received from topic {topicName}, subscription {dep}Subscription:\n {messageObject?.Title}: {messageObject?.Body}");
-//}
-
-//Continuous pull
+//Pull Receive
 
 //foreach (var dep in testDepartment)
 //{
-//    await serviceBus.StartProcessorAsync(
+//    await serviceBusService.StartProcessorAsync(
 //    topicName,
 //    $"{dep}Subscription",
 //    async args =>
@@ -174,24 +163,18 @@ var testDepartment = new[] { "HR", "IT", "Finance" };
 //var messageJson = JsonSerializer.Serialize(message);
 //for (int i = 0; i < 5; i++)
 //{
-//    await serviceBus.SendMessageAsync(queueName, messageJson);
+//    await messagingService.SendMessageAsync(queueName, messageJson);
 //}
 
 //Console.WriteLine($"Message sent to queue: {queueName}");
 
-#endregion Send
+//#endregion Send
 
-#region Receive
+//#region Receive
 
-//string? queueMsg = await serviceBus.ReceiveMessageAsync(queueName);
+////Pull receive
 
-//var messageObject = JsonSerializer.Deserialize<ServiceBusMessage>(queueMsg!);
-
-//Console.WriteLine($"Message received from queue {queueName}:\n {messageObject?.Title}: {messageObject?.Body}");
-
-//Continuous pull
-
-//await serviceBus.StartQueueProcessorAsync(
+//await serviceBusService.StartQueueProcessorAsync(
 //queueName,
 //async args =>
 //{

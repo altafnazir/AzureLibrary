@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace AzureArchitect.Services
 {
-    public class ServiceBusService : IServiceBusService, IAsyncDisposable
+    public class ServiceBusService : IServiceBusService, IMessagingService, IAsyncDisposable
     {
         #region Fields
 
