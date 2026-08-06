@@ -168,11 +168,11 @@ var testDepartment = new[] { "HR", "IT", "Finance" };
 
 //Console.WriteLine($"Message sent to queue: {queueName}");
 
-//#endregion Send
+#endregion Send
 
-//#region Receive
+#region Receive
 
-////Pull receive
+//Pull receive
 
 //await serviceBusService.StartQueueProcessorAsync(
 //queueName,
@@ -195,4 +195,3 @@ var testDepartment = new[] { "HR", "IT", "Finance" };
 
 // keep the host alive so processors run
 await host.RunAsync();
-// or: await Task.Delay(Timeout.Infinite);

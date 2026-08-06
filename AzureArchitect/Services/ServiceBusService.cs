@@ -106,8 +106,10 @@ namespace AzureArchitect.Services
                 foreach (var property in properties)
                 {
                     serviceBusMessage.ApplicationProperties.Add(property.Key, property.Value);
-                }   
+                }
             }
+
+            serviceBusMessage.ContentType = "application/json";
 
             await sender.SendMessageAsync(serviceBusMessage, cancellationToken);
         }
@@ -145,6 +147,7 @@ namespace AzureArchitect.Services
                         serviceBusMessage.ApplicationProperties[kv.Key] = kv.Value!;
                     }
                 }
+                serviceBusMessage.ContentType = "application/json";
 
                 if (!batch.TryAddMessage(serviceBusMessage))
                 {
