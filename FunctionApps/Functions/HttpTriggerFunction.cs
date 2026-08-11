@@ -5,11 +5,11 @@ using Microsoft.Extensions.Logging;
 
 namespace FunctionApps.Functions
 {
-    public class HttpTrigger
+    public class HttpTriggerFunction
     {
-        private readonly ILogger<HttpTrigger> _logger;
+        private readonly ILogger<HttpTriggerFunction> _logger;
 
-        public HttpTrigger(ILogger<HttpTrigger> logger)
+        public HttpTriggerFunction(ILogger<HttpTriggerFunction> logger)
         {
             _logger = logger;
         }

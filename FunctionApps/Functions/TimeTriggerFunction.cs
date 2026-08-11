@@ -4,13 +4,13 @@ using Microsoft.Extensions.Logging;
 
 namespace FunctionApps.Functions
 {
-    public class TimeTrigger
+    public class TimeTriggerFunction
     {
         private readonly ILogger _logger;
 
-        public TimeTrigger(ILoggerFactory loggerFactory)
+        public TimeTriggerFunction(ILoggerFactory loggerFactory)
         {
-            _logger = loggerFactory.CreateLogger<TimeTrigger>();
+            _logger = loggerFactory.CreateLogger<TimeTriggerFunction>();
         }
 
         // Runs every 3 seconds

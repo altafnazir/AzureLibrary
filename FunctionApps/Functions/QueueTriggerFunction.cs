@@ -6,16 +6,16 @@ using Microsoft.Extensions.Logging;
 
 namespace FunctionApps.Functions
 {
-    public class QueueTrigger
+    public class QueueTriggerFunction
     {
-        private readonly ILogger<QueueTrigger> _logger;
+        private readonly ILogger<QueueTriggerFunction> _logger;
 
-        public QueueTrigger(ILogger<QueueTrigger> logger)
+        public QueueTriggerFunction(ILogger<QueueTriggerFunction> logger)
         {
             _logger = logger;
         }
 
-        [Function(nameof(QueueTrigger))]
+        [Function(nameof(QueueTriggerFunction))]
         public async Task Run(
             [ServiceBusTrigger("message-queue", 
                 Connection = "MyServiceBusConnection")]

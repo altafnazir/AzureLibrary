@@ -6,11 +6,11 @@ using Microsoft.Extensions.Logging;
 
 namespace FunctionApps.Functions
 {
-    public class TopicSubscription
+    public class TopicSubscriptionTriggerFunction
     {
-        private readonly ILogger<TopicSubscription> _logger;
+        private readonly ILogger<TopicSubscriptionTriggerFunction> _logger;
 
-        public TopicSubscription(ILogger<TopicSubscription> logger)
+        public TopicSubscriptionTriggerFunction(ILogger<TopicSubscriptionTriggerFunction> logger)
         {
             _logger = logger;
         }

@@ -4,11 +4,14 @@ using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.DurableTask;
 using Microsoft.DurableTask.Client;
 using Microsoft.Extensions.Logging;
+using AzureServices.Extensions;
 
+///Function chaining, human interaction, Async HTTP api patterns
 namespace FunctionApps.DurableFunction
 {
-    public static class StartOrderFunction
+    public static class OrderFunction
     {
+        //Triggers orchestrator through http function
         [Function("StartOrder")]
         public static async Task<HttpResponseData> StartOrder(
             [HttpTrigger(AuthorizationLevel.Anonymous, "post")] HttpRequestData req,
@@ -24,6 +27,7 @@ namespace FunctionApps.DurableFunction
             return await client.CreateCheckStatusResponseAsync(req, instanceId);
         }
 
+        //Orchestrator function
         [Function("OrderOrchestrator")]
         public static async Task OrderOrchestrator(
             [OrchestrationTrigger] TaskOrchestrationContext context)
@@ -41,13 +45,16 @@ namespace FunctionApps.DurableFunction
             var timeout =
                 context.CurrentUtcDateTime.AddMinutes(30);
 
+            using var cts = new CancellationTokenSource();
+
             var timeoutTask =
                 context.CreateTimer(
                     timeout,
-                    CancellationToken.None);
+                    cts.Token);
 
+            //Event is raised from http function PaymentWebhookFunction
             var paymentTask =
-                context.WaitForExternalEvent<bool>(
+                context.WaitForExternalEvent<string>(
                     "PaymentReceived");
 
             var winner =
@@ -57,6 +64,12 @@ namespace FunctionApps.DurableFunction
 
             if (winner == paymentTask)
             {
+                string paymentId = await paymentTask;
+
+                cts.Cancel();
+
+                await timeoutTask.IgnoreCancellationAsync();
+
                 await context.CallActivityAsync(
                     "ShipOrder",
                     order);
@@ -69,6 +82,7 @@ namespace FunctionApps.DurableFunction
             }
         }
 
+        //Activity methods called in orchestrator
         [Function("ReserveInventory")]
         public static async Task ReserveInventory([ActivityTrigger] OrderRequest order, FunctionContext executionContext)
         {

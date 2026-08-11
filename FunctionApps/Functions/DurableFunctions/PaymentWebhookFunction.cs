@@ -7,6 +7,7 @@ using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.DurableTask.Client;
 using Microsoft.Extensions.Logging;
 
+//Webhook that raise event PaymentReceived for StartOrderFunction flow
 namespace FunctionApps.DurableFunction
 {
     public class PaymentWebhookFunction
@@ -32,7 +33,7 @@ namespace FunctionApps.DurableFunction
                 await client.RaiseEventAsync(
                     body.InstanceId,
                     "PaymentReceived",
-                    true);
+                    body.PaymentId);
             }
 
             return new OkObjectResult("PaymentWebhook completed!");
