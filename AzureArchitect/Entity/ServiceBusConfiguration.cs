@@ -1,5 +1,4 @@
-﻿using Azure.Core;
-using Azure.Messaging.ServiceBus;
+﻿using Azure.Messaging.ServiceBus;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +10,7 @@ namespace AzureServices.Entity
     public class ServiceBusConfiguration
     {
         /// <summary>
-        /// Name of the Service Bus config to identify among multiple Service Bus.
+        /// Name of the Service Bus.
         /// </summary>
         public string? Name { get; set; }
 
@@ -32,12 +31,14 @@ namespace AzureServices.Entity
 
         /// <summary>
         /// Retry policy options for pull receive.
+        /// Use ServiceBusRetryOptions from Azure.Messaging.ServiceBus which the binder can construct.
         /// </summary>
-        public RetryOptions? RetryOptions { get; set; }
+        public ServiceBusRetryOptions? RetryOptions { get; set; }
 
         /// <summary>
         /// Processor (receiver) options for push receive.
+        /// The JSON key in appsettings.json is "ProcessorOptions", so name the property the same for easy binding.
         /// </summary>
-        public ServiceBusProcessorOptions? ServiceBusProcessorOptions { get; set; }
+        public ServiceBusProcessorOptions? ProcessorOptions { get; set; }
     }
 }

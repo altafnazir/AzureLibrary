@@ -10,6 +10,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace AzureArchitect.Services
@@ -39,6 +40,15 @@ namespace AzureArchitect.Services
             _adminClient = adminClient ?? throw new ArgumentNullException(nameof(adminClient));
             _processors = new ConcurrentDictionary<string, ServiceBusProcessor>();
             _serviceBusProcessorOptions = serviceBusProcessorOptions;
+
+            try
+            {
+                _adminClient.GetNamespacePropertiesAsync().GetAwaiter().GetResult();
+            }
+            catch (Exception ex)
+            {
+                throw new InvalidOperationException("Service Bus namespace is not reachable or does not exist.", ex);
+            }
         }
 
         #endregion Constructor

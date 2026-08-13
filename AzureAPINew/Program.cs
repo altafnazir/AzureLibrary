@@ -4,6 +4,7 @@ using Azure.Messaging.ServiceBus.Administration;
 using AzureArchitect.Extensions;
 using AzureArchitect.Facade;
 using AzureArchitect.Services;
+using AzureServices.Entity;
 using Microsoft.OpenApi;
 using Microsoft.OpenApi.Models;
 using Swashbuckle.AspNetCore.Swagger;
@@ -28,45 +29,18 @@ builder.Services.AddSwaggerGen(c =>
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 //builder.Services.AddOpenApi();
 {
-    // Resolve connection string from multiple locations (same logic as your snippet)
-    var connectionString =
-        builder.Configuration["ServiceBus:ConnectionString"]
-        ?? builder.Configuration.GetConnectionString("ServiceBus")
-        ?? builder.Configuration["ServiceBusConnectionString"];
+    var serviceBusConfiguration = builder.Configuration
+                    .GetSection("ServiceBus")
+                    .Get<ServiceBusConfiguration>();
 
-    if (string.IsNullOrWhiteSpace(connectionString))
+    if (serviceBusConfiguration == null)
     {
-        throw new InvalidOperationException("Service Bus connection string not found in configuration. Check ServiceBus:ConnectionString or ConnectionStrings:ServiceBus.");
+        throw new InvalidOperationException(
+            "Missing or malformed configuration section 'ServiceBus'. " +
+            "Ensure appsettings.json contains a valid ServiceBus section with required properties.");
     }
 
-    // Read retry options from configuration if present, otherwise use defaults
-    var retryOptions = builder.Configuration
-        .GetSection("ServiceBus:ClientOptions:RetryOptions")
-        .Get<ServiceBusRetryOptions>() ?? new ServiceBusRetryOptions();
-
-    var clientOptions = new ServiceBusClientOptions { RetryOptions = retryOptions };
-
-    // Read processor options (used when you create processors elsewhere)
-    var serviceBusProcessorOptions = builder.Configuration
-        .GetSection("ServiceBus:ProcessorOptions")
-        .Get<ServiceBusProcessorOptions>() ?? new ServiceBusProcessorOptions();
-
-    // Register your library extension (keeps existing behavior)
-    builder.Services.AddServiceBusLibrary(builder.Configuration);
-
-    // Register ServiceBusClient and processor options for DI consumers
-    builder.Services.AddSingleton(new ServiceBusClient(connectionString, clientOptions));
-    builder.Services.AddSingleton(new ServiceBusAdministrationClient(connectionString));
-    builder.Services.AddSingleton(serviceBusProcessorOptions);
-
-    // If your ServiceBusService depends on IServiceBusService, register it
-    builder.Services.AddSingleton<ServiceBusService>();
-
-    builder.Services.AddSingleton<IMessagingService>(
-        sp => sp.GetRequiredService<ServiceBusService>());
-
-    builder.Services.AddSingleton<IServiceBusService>(
-        sp => sp.GetRequiredService<ServiceBusService>());
+    builder.Services.AddServiceBusLibrary(serviceBusConfiguration);
 
     Azure.Core.Diagnostics.AzureEventSourceListener.CreateConsoleLogger();
 }
