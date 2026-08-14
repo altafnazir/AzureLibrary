@@ -39,8 +39,9 @@ builder.Services.AddSwaggerGen(c =>
             "Missing or malformed configuration section 'ServiceBus'. " +
             "Ensure appsettings.json contains a valid ServiceBus section with required properties.");
     }
-
-    builder.Services.AddServiceBusLibrary(serviceBusConfiguration);
+    
+    //TODO: Uncomment and change this as per console app
+    //builder.Services.AddServiceBusLibrary(serviceBusConfiguration);
 
     Azure.Core.Diagnostics.AzureEventSourceListener.CreateConsoleLogger();
 }
