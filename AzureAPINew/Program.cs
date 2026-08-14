@@ -29,19 +29,15 @@ builder.Services.AddSwaggerGen(c =>
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 //builder.Services.AddOpenApi();
 {
-    var serviceBusConfiguration = builder.Configuration
-                    .GetSection("ServiceBus")
-                    .Get<ServiceBusConfiguration>();
-
-    if (serviceBusConfiguration == null)
+    try
     {
-        throw new InvalidOperationException(
-            "Missing or malformed configuration section 'ServiceBus'. " +
-            "Ensure appsettings.json contains a valid ServiceBus section with required properties.");
+        builder.Services.AddServiceBusLibrary(builder.Configuration);
     }
-    
-    //TODO: Uncomment and change this as per console app
-    //builder.Services.AddServiceBusLibrary(serviceBusConfiguration);
+    catch (Exception ex)
+    {
+        Console.Write(ex.Message);
+        throw new Exception(ex.Message);
+    }
 
     Azure.Core.Diagnostics.AzureEventSourceListener.CreateConsoleLogger();
 }
