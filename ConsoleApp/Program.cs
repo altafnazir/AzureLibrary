@@ -35,26 +35,6 @@ using IHost host = Host.CreateDefaultBuilder(args)
                             Console.Write(ex.Message);
                             throw new Exception(ex.Message);
                         }
-
-                        //var serviceBusConfiguration = context.Configuration
-                        //                .GetSection("ServiceBus")
-                        //                .Get<ServiceBusConfiguration>();
-
-                        //if (serviceBusConfiguration == null)
-                        //{
-                        //    throw new InvalidOperationException(
-                        //        "Missing or malformed configuration section 'ServiceBus'. " +
-                        //        "Ensure appsettings.json contains a valid ServiceBus section with required properties.");
-                        //}
-                        //try
-                        //{
-                        //    services.AddServiceBusLibrary(serviceBusConfiguration);
-                        //}
-                        //catch (Exception ex)
-                        //{
-                        //    Console.Write(ex.Message);
-                        //    throw new Exception(ex.Message);
-                        //}
                     })
                     .ConfigureLogging((context, logging) =>
                     {
@@ -71,32 +51,6 @@ using IHost host = Host.CreateDefaultBuilder(args)
 
 var logger = host.Services.GetRequiredService<ILogger<Program>>();
 logger.LogInformation("Host built; ServiceBus client configured.");
-
-//var vaultUri = "https://learnkeyvault2026.vault.azure.net/";
-
-//if (string.IsNullOrWhiteSpace(vaultUri)) throw new ArgumentNullException(nameof(vaultUri));
-
-// Use DefaultAzureCredential but avoid Managed Identity probing when running locally.
-
-//var options = new DefaultAzureCredentialOptions
-//{
-//    ExcludeManagedIdentityCredential = true
-//};
-//DefaultAzureCredential credential = new DefaultAzureCredential(options);
-
-//var _secretClient = new SecretClient(new Uri(vaultUri), credential);
-//var _keyClient = new KeyClient(new Uri(vaultUri), credential);
-//var secretResponse = _secretClient.GetSecret("servicebus");
-//var secretValue = secretResponse?.Value?.Value;
-//AsyncPageable<SecretProperties> allSecrets = _secretClient.GetPropertiesOfSecretsAsync();
-
-//await _secretClient.SetSecretAsync("servicebusconstr", "Endpoint=sb://learnservicebus2026.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=dY6aUDt0OgrCIyDn4CdVlzn5yzCiPr1YZ+ASbETySxc=");
-//Console.WriteLine("Key added");
-
-//await foreach (SecretProperties secretProperties in allSecrets)
-//{
-//    Console.WriteLine(secretProperties.Name);
-//}
 
 var serviceBusService = host.Services.GetRequiredService<IServiceBusService>();
 var messagingService = host.Services.GetRequiredService<IMessagingService>();

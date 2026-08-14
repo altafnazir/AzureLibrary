@@ -11,38 +11,38 @@ namespace AzureServices.Services
 {
     public class ServiceBusConfigurationValidator : IValidateOptions<ServiceBusConfiguration>
     {
-        public ValidateOptionsResult Validate(string? name, ServiceBusConfiguration options)
+        public ValidateOptionsResult Validate(string? name, ServiceBusConfiguration serviceBusConfiguration)
         {
-            if (options == null)
+            if (serviceBusConfiguration == null)
             {
                 return ValidateOptionsResult.Fail("ServiceBus configuration section is missing or has invalid structure.");
             }
 
             var failures = new List<string>();
 
-            if (string.IsNullOrWhiteSpace(options.ConnectionSource))
+            if (string.IsNullOrWhiteSpace(serviceBusConfiguration.ConnectionSource))
             {
                 failures.Add("ConnectionSource is required (KeyVault | ConnectionString).");
             }
 
-            if (options.ConnectionSource == ConnectionSourceEnum.KeyVault.ToString())
+            if (serviceBusConfiguration.ConnectionSource == ConnectionSourceEnum.KeyVault.ToString())
             {
-                if (options.KeyVault == null)
+                if (serviceBusConfiguration.KeyVault == null)
                 {
                     failures.Add("KeyVault section is required when ConnectionSource is 'KeyVault'.");
                 }
                 else
                 {
-                    if (string.IsNullOrWhiteSpace(options.KeyVault.VaultUri))
+                    if (string.IsNullOrWhiteSpace(serviceBusConfiguration.KeyVault.VaultUri))
                     {
                         failures.Add("KeyVault:VaultUri is required.");
                     }
-                    else if (!Uri.TryCreate(options.KeyVault.VaultUri, UriKind.Absolute, out var uri) || uri.Scheme != Uri.UriSchemeHttps)
+                    else if (!Uri.TryCreate(serviceBusConfiguration.KeyVault.VaultUri, UriKind.Absolute, out var uri) || uri.Scheme != Uri.UriSchemeHttps)
                     {
                         failures.Add("KeyVault:VaultUri must be an absolute HTTPS URI.");
                     }
 
-                    if (string.IsNullOrWhiteSpace(options.KeyVault.SecretName))
+                    if (string.IsNullOrWhiteSpace(serviceBusConfiguration.KeyVault.SecretName))
                     {
                         failures.Add("KeyVault:SecretName is required when using KeyVault as ConnectionSource.");
                     }
@@ -50,7 +50,7 @@ namespace AzureServices.Services
             }
             else
             {
-                if (string.IsNullOrWhiteSpace(options.ConnectionString))
+                if (string.IsNullOrWhiteSpace(serviceBusConfiguration.ConnectionString))
                 {
                     failures.Add("ConnectionString is required when ConnectionSource is not 'KeyVault'.");
                 }
