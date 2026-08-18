@@ -17,13 +17,12 @@ namespace AzureServices.Services
 {
     public class KeyVaultService : IKeyVaultService
     {
-
         private readonly KeyVault _config;
         private readonly SecretClient _secretClient;
         private readonly KeyClient _keyClient;
         private readonly ILogger<KeyVaultService> _logger;
 
-        public KeyVaultService(IOptions<KeyVault> options, TokenCredential? credential, ILogger<KeyVaultService> logger)
+        public KeyVaultService(IOptions<KeyVault> options, ILogger<KeyVaultService> logger)
         {
             _config = options?.Value ?? throw new ArgumentNullException(nameof(options));
             _logger = logger;
@@ -34,7 +33,13 @@ namespace AzureServices.Services
             if (!Uri.TryCreate(_config.VaultUri, UriKind.Absolute, out var uri) || uri.Scheme != Uri.UriSchemeHttps)
                 throw new InvalidOperationException($"Invalid Key Vault URI '{_config.VaultUri}'. It must be an absolute HTTPS URI.");
 
-            credential ??= new DefaultAzureCredential();
+            var credentialOptions = new DefaultAzureCredentialOptions
+            {
+                // When running locally in Development, avoid Managed Identity probing which can add latency
+                ExcludeManagedIdentityCredential = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development"
+            };
+
+            var credential = new DefaultAzureCredential(credentialOptions);
 
             _secretClient = new SecretClient(uri, credential);
             _keyClient = new KeyClient(uri, credential);

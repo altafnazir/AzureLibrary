@@ -2,7 +2,6 @@
 using Azure.Identity;
 using Azure.Messaging.ServiceBus;
 using Azure.Messaging.ServiceBus.Administration;
-using Azure.Security.KeyVault.Secrets;
 using AzureArchitect.Facade;
 using AzureArchitect.Services;
 using AzureServices.Entity;
@@ -24,7 +23,9 @@ namespace AzureArchitect.Extensions
         {
             if (configuration == null) throw new ArgumentNullException(nameof(configuration));
 
-            var section = configuration.GetSection("ServiceBus");
+            var configService = new ConfigurationService(configuration);
+
+            var section = configService.GetSection("ServiceBus");
 
             services.AddOptions<ServiceBusConfiguration>()
                     .Bind(section)
@@ -32,8 +33,7 @@ namespace AzureArchitect.Extensions
 
             services.AddSingleton<IValidateOptions<ServiceBusConfiguration>, ServiceBusConfigurationValidator>();
 
-            var configService = new ConfigurationService(configuration);
-            var serviceBusConfiguration = section.Get<ServiceBusConfiguration>();
+            var serviceBusConfiguration = configService.Get<ServiceBusConfiguration>();
 
             if (serviceBusConfiguration == null)
                 throw new InvalidOperationException("ServiceBus configuration section is missing or has invalid structure.");
@@ -50,21 +50,22 @@ namespace AzureArchitect.Extensions
 
             var connectionString = string.Empty;
 
-            if (serviceBusConfiguration.ConnectionSource == ConnectionSourceEnum.KeyVault.ToString())
+            // Build a KeyVault options instance from the ServiceBus configuration (if present).
+            var keyVaultOptionsInstance = serviceBusConfiguration.KeyVault ?? new KeyVault
             {
-                var credentialOptions = new DefaultAzureCredentialOptions
-                {
-                    // When running locally in Development, avoid Managed Identity probing which can add latency
-                    ExcludeManagedIdentityCredential = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development"
-                };
+                VaultUri = null
+            };
 
-                var credential = new DefaultAzureCredential(credentialOptions);
-                var secretClient = new SecretClient(new Uri(vaultUri!), credential);
+            var options = Options.Create(keyVaultOptionsInstance);
 
+            var logger = services.BuildServiceProvider().GetRequiredService<ILogger<KeyVaultService>>();
+            var keyVaultService = new KeyVaultService(options, logger);
+
+            if (IsKeyVaultConnection(serviceBusConfiguration))
+            {
                 try
                 {
-                    var secretResponse = secretClient.GetSecret(secretName);
-                    var secretValue = secretResponse?.Value?.Value;
+                    var secretValue = keyVaultService.GetSecretAsync(secretName!).Result.Value;
 
                     if (string.IsNullOrWhiteSpace(secretValue))
                     {
@@ -110,7 +111,7 @@ namespace AzureArchitect.Extensions
             catch (Exception)
             {
                 var msg = $"Failed to create Service Bus clients with the configured connection string. " +
-                              $"Verify connectionstring for servicebus is valid.";
+                              $"Verify if connectionstring for servicebus is valid.";
 
                 Console.WriteLine(msg);
 
@@ -127,9 +128,18 @@ namespace AzureArchitect.Extensions
             services.AddSingleton<IServiceBusService>(
                 sp => sp.GetRequiredService<ServiceBusService>());
 
-            //services.AddSingleton<IKeyVaultService, KeyVaultService>();
-
             return services;
+        }
+
+        private static bool IsKeyVaultConnection(ServiceBusConfiguration? config)
+        {
+            if (config == null) return false;
+
+            var source = config.ConnectionSource;
+            if (string.IsNullOrWhiteSpace(source)) return false;
+
+            return Enum.TryParse<ConnectionSourceEnum>(source, ignoreCase: true, out var parsed)
+                   && parsed == ConnectionSourceEnum.KeyVault;
         }
     }
 }

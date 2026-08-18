@@ -13,6 +13,7 @@ namespace AzureServices.Services
     {
         private readonly IConfiguration _configuration;
         private readonly ILogger<ConfigurationService>? _logger;
+        private IConfigurationSection _section { get; set; } = default!;
 
         public ConfigurationService(IConfiguration configuration, ILogger<ConfigurationService>? logger = null)
         {
@@ -20,20 +21,26 @@ namespace AzureServices.Services
             _logger = logger;
         }
 
-        public T Get<T>(string sectionName) where T : new()
+        public IConfigurationSection GetSection(string sectionName)
         {
             if (string.IsNullOrWhiteSpace(sectionName))
-                throw new ArgumentException("{sectionName} must be provided");
+                throw new ArgumentException("sectionName must be provided", nameof(sectionName));
 
-            var section = _configuration.GetSection(sectionName);
+            this._section = _configuration.GetSection(sectionName);
 
-            if (!section.Exists())
+            if (!this._section.Exists())
                 throw new InvalidOperationException($"Configuration section '{sectionName}' not found.");
 
-            var bound = section.Get<T>();
+            return this._section;
+        }
+
+        public T Get<T>() where T : new()
+        {
+            var bound = this._section.Get<T>();
+
             if (bound is null)
             {
-                var msg = $"Failed to bind configuration section '{sectionName}' to type {typeof(T).FullName}. Ensure it has a public parameterless constructor and public settable properties.";
+                var msg = $"Failed to bind configuration section of type {typeof(T).FullName}. Ensure it has a public parameterless constructor and public settable properties.";
                 _logger?.LogError(msg);
                 throw new InvalidOperationException(msg);
             }

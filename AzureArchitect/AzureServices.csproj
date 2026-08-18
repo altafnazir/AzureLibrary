@@ -24,10 +24,6 @@
     <PackageReference Include="Azure.Messaging.ServiceBus" Version="7.20.2" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Config\" />
-  </ItemGroup>
-
   <!--<ItemGroup>
     --><!-- Reference the AzureArchitect class library project so its extension methods and types are available --><!--
     <ProjectReference Include="src\AzureArchitect\AzureArchitect.csproj" />

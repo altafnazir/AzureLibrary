@@ -2,16 +2,17 @@
 using Azure.Identity;
 using Azure.Messaging.ServiceBus;
 using Azure.Messaging.ServiceBus.Administration;
-using Azure.Security.KeyVault.Keys;
-using Azure.Security.KeyVault.Secrets;
 using AzureArchitect.Extensions;
 using AzureArchitect.Facade;
 using AzureServices.Entity;
 using AzureServices.Enums;
+using AzureServices.Facade;
+using AzureServices.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 using System.Net;
 using System.Text.Json;
 
