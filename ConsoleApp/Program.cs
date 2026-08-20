@@ -4,6 +4,7 @@ using Azure.Messaging.ServiceBus;
 using Azure.Messaging.ServiceBus.Administration;
 using AzureArchitect.Extensions;
 using AzureArchitect.Facade;
+using AzureArchitect.Services.BlobStorage;
 using AzureServices.Entity;
 using AzureServices.Enums;
 using AzureServices.Facade;
@@ -14,6 +15,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using System.Net;
+using System.Text;
 using System.Text.Json;
 
 var queueName = "message-queue";
@@ -29,7 +31,8 @@ using IHost host = Host.CreateDefaultBuilder(args)
                     {
                         try
                         {
-                            services.AddServiceBusLibrary(context.Configuration);
+                            //services.AddServiceBusLibrary(context.Configuration);
+                            services.AddStorageLibrary(context.Configuration);
                         }
                         catch (Exception ex)
                         {
@@ -53,12 +56,14 @@ using IHost host = Host.CreateDefaultBuilder(args)
 var logger = host.Services.GetRequiredService<ILogger<Program>>();
 logger.LogInformation("Host built; ServiceBus client configured.");
 
-var serviceBusService = host.Services.GetRequiredService<IServiceBusService>();
-var messagingService = host.Services.GetRequiredService<IMessagingService>();
+#region Service Bus
+
+//var serviceBusService = host.Services.GetRequiredService<IServiceBusService>();
+//var messagingService = host.Services.GetRequiredService<IMessagingService>();
 
 #region Admin
 
-await messagingService.CreateQueueAsync(queueName);
+//await messagingService.CreateQueueAsync(queueName);
 //await messagingService.CreateTopicAsync(topicName);
 
 //foreach (var vd in validDepartments)
@@ -145,21 +150,21 @@ var testDepartment = new[] { "HR", "IT", "Finance" };
 
 #region Send
 
-ServiceBusData message = new ServiceBusData
-{
-    Id = 2,
-    Department = "HR",
-    Title = "Welcome",
-    Body = $"This is test message."
-};
+//ServiceBusData message = new ServiceBusData
+//{
+//    Id = 2,
+//    Department = "HR",
+//    Title = "Welcome",
+//    Body = $"This is test message."
+//};
 
-var messageJson = JsonSerializer.Serialize(message);
-for (int i = 0; i < 5; i++)
-{
-    await messagingService.SendMessageAsync(queueName, messageJson);
-}
+//var messageJson = JsonSerializer.Serialize(message);
+//for (int i = 0; i < 5; i++)
+//{
+//    await messagingService.SendMessageAsync(queueName, messageJson);
+//}
 
-Console.WriteLine($"Message sent to queue: {queueName}");
+//Console.WriteLine($"Message sent to queue: {queueName}");
 
 #endregion Send
 
@@ -185,6 +190,92 @@ Console.WriteLine($"Message sent to queue: {queueName}");
 #endregion Receive
 
 #endregion Queue
+
+#endregion Service Bus
+
+#region Storage
+
+var storageService = host.Services.GetRequiredService<IBlobService>();
+try
+{
+    var blobName = "sample.txt";
+    var containerName = "createdfromcode";
+    var localPath = @"C:\temp\sample.txt";
+
+    //Upload a file
+    //await using (var fs = File.OpenRead(localPath))
+    //{
+    //    await storageService.UploadAsync(containerName, blobName, fs);
+    //}
+
+    //var fileList = new List<FileToUpload>();
+
+    //var fs = File.OpenRead(localPath);
+
+    //fileList.Add(new FileToUpload() { FileName = Path.GetFileName(localPath), Content = fs });
+    //await fs.FlushAsync();
+
+    //fs = File.OpenRead(@"C:\temp\sample_downloaded.txt");
+
+    //fileList.Add(new FileToUpload() { FileName = Path.GetFileName(@"C:\temp\sample_downloaded.txt"), Content = fs });
+    //await fs.FlushAsync();
+
+    //await storageService.BulkUploadAsync(containerName, fileList);
+
+    //Upload from file path
+    //await storageService.UploadFromFileAsync(containerName, blobName, localPath);
+
+    //await storageService.BulkUploadFromFileAsync(containerName, new List<string> { @"C:\temp\sample.txt", @"C:\temp\sample_downloaded.txt" });
+
+    //logger.LogInformation("File uploaded.");
+
+    //long minutes = 1;
+
+    ////Generate SAS Url
+    //var sasUri = await storageService.GenerateBlobSasUri(containerName, blobName, TimeSpan.FromMinutes(minutes));
+    //var sasUri = await storageService.GenerateUserDelegationSasUriAsync(containerName, blobName, TimeSpan.FromMinutes(minutes));
+
+    //logger.LogInformation($"Blob SAS URI (valid {minutes} minutes): {sasUri}");
+
+    // Download to a file
+    //await storageService.DownloadToFileAsync(containerName, blobName, @"C:\temp\sample_downloaded4.txt");
+
+    //logger.LogInformation("File downloaded.");
+
+    // Delete blob
+    //await storageService.DeleteAsync(containerName, "sample3.txt");
+    //logger.LogInformation("File deleted.");
+
+    //var exist = await storageService.GetPropertiesAsync(containerName, "sample.txt");
+    //Console.WriteLine($"{exist.ContentLength} bytes");
+    //foreach (var md in exist.Metadata)
+    //{
+    //    logger.LogInformation($"{md.Key} : {md.Value}");
+    //}
+
+    //IDictionary<string, string?> metadata=new Dictionary<string, string?>();
+    //metadata.Add("md", "789");
+    //metadata.Add("test", "123");
+    //await storageService.SetMetadataAsync(containerName, "sample.txt", metadata!);
+    //logger.LogInformation("Metadata set");
+
+    //var blobs = await storageService.ListBlobsAsync(containerName);
+    //foreach (var blob in blobs)
+    //{
+    //    Console.WriteLine($"{blob.Name} : {blob.Properties.ContentLength} bytes");
+    //}
+
+    //Copy from URL
+    //var copyID = await storageService.StartCopyFromUriAsync(containerName, "AllanDonald.jpg", new Uri("https://www.sporting-heroes.net/content/thumbnails/00013/01186-zoom.jpg"));
+
+    //Console.WriteLine($"File copied {copyID}");
+}
+catch (Exception ex)
+{
+    logger.LogError(ex.Message);
+}
+
+#endregion Storage
 
 // keep the host alive so processors run
 await host.RunAsync();
