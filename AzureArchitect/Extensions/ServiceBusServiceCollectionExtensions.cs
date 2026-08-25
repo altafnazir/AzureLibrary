@@ -4,6 +4,7 @@ using Azure.Messaging.ServiceBus;
 using Azure.Messaging.ServiceBus.Administration;
 using AzureArchitect.Facade;
 using AzureArchitect.Services;
+using AzureArchitect.Services.BlobStorage;
 using AzureServices.Entity;
 using AzureServices.Enums;
 using AzureServices.Facade;
@@ -12,7 +13,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using AzureArchitect.Services.BlobStorage;
+using System.Net;
 
 namespace AzureArchitect.Extensions
 {
@@ -62,35 +63,37 @@ namespace AzureArchitect.Extensions
             var logger = services.BuildServiceProvider().GetRequiredService<ILogger<KeyVaultService>>();
             var keyVaultService = new KeyVaultService(options, logger);
 
-            if (IsKeyVaultConnection(serviceBusConfiguration))
+            switch (serviceBusConfiguration.ConnectionSource)
             {
-                try
-                {
-                    var secretValue = keyVaultService.GetSecretAsync(secretName!).Result.Value;
-
-                    if (string.IsNullOrWhiteSpace(secretValue))
+                case nameof(ConnectionSourceEnum.KeyVault):
+                    try
                     {
-                        throw new InvalidOperationException("Key Vault Secret Value must be set when ConnectionSource is 'KeyVault'.");
-                    }
+                        var secretValue = keyVaultService.GetSecretAsync(secretName!).Result.Value;
 
-                    connectionString = secretValue;
-                }
-                catch (AuthenticationFailedException ex)
-                {
-                    throw new AuthenticationFailedException($"Authentication failed while getting connection string from keyvault: {ex.Message}");
-                }
-                catch (RequestFailedException rfEx)
-                {
-                    throw new InvalidOperationException($"Secret Name '{secretName}' in Key Vault '{vaultUri}' is invalid: {rfEx.Message}");
-                }
-                catch (Exception ex)
-                {
-                    throw new InvalidOperationException($"Key Vault URI '{vaultUri}' is invalid: {ex.Message}");
-                }
-            }
-            else
-            {
-                connectionString = serviceBusConfiguration.ConnectionString;
+                        if (string.IsNullOrWhiteSpace(secretValue))
+                        {
+                            throw new InvalidOperationException("Key Vault Secret Value must be set when ConnectionSource is 'KeyVault'.");
+                        }
+
+                        connectionString = secretValue;
+                    }
+                    catch (AuthenticationFailedException ex)
+                    {
+                        throw new AuthenticationFailedException($"Authentication failed while getting connection string from keyvault: {ex.Message}");
+                    }
+                    catch (RequestFailedException rfEx)
+                    {
+                        throw new InvalidOperationException($"Secret Name '{secretName}' in Key Vault '{vaultUri}' is invalid: {rfEx.Message}");
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new InvalidOperationException($"Key Vault URI '{vaultUri}' is invalid: {ex.Message}");
+                    }
+                    break;
+
+                case nameof(ConnectionSourceEnum.AppSettings):
+                    connectionString = serviceBusConfiguration.ConnectionString;
+                    break;
             }
 
             if (!services.Any(sd => sd.ServiceType == typeof(IConfigurationService)))
@@ -106,8 +109,17 @@ namespace AzureArchitect.Extensions
 
             try
             {
-                services.AddSingleton(new ServiceBusClient(connectionString, clientOptions));
-                services.AddSingleton(new ServiceBusAdministrationClient(connectionString));
+                //Best practice is to use Managed Identity instead of connectionstring
+                //services.AddSingleton(new ServiceBusClient(connectionString, clientOptions));
+                var credentialOptions = new DefaultAzureCredentialOptions
+                {
+                    // When running locally in Development, avoid Managed Identity probing which can add latency
+                    ExcludeManagedIdentityCredential = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development"
+                };
+
+                var credential = new DefaultAzureCredential(credentialOptions);
+                services.AddSingleton(new ServiceBusClient(serviceBusConfiguration.Uri, credential));
+                services.AddSingleton(new ServiceBusAdministrationClient(serviceBusConfiguration.Uri, credential));
             }
             catch (Exception)
             {

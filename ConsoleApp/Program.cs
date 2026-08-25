@@ -31,8 +31,8 @@ using IHost host = Host.CreateDefaultBuilder(args)
                     {
                         try
                         {
-                            //services.AddServiceBusLibrary(context.Configuration);
-                            services.AddStorageLibrary(context.Configuration);
+                            services.AddServiceBusLibrary(context.Configuration);
+                            //services.AddStorageLibrary(context.Configuration);
                         }
                         catch (Exception ex)
                         {
@@ -195,7 +195,7 @@ var testDepartment = new[] { "HR", "IT", "Finance" };
 
 #region Storage
 
-var storageService = host.Services.GetRequiredService<IBlobService>();
+//var storageService = host.Services.GetRequiredService<IBlobService>();
 try
 {
     var blobName = "sample.txt";

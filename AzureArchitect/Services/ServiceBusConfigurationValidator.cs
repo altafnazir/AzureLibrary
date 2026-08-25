@@ -1,5 +1,6 @@
 ﻿using AzureServices.Entity;
 using AzureServices.Enums;
+using Microsoft.Azure.Amqp;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
@@ -48,7 +49,7 @@ namespace AzureServices.Services
                     }
                 }
             }
-            else
+            else if (serviceBusConfiguration.ConnectionSource == ConnectionSourceEnum.AppSettings.ToString())
             {
                 if (string.IsNullOrWhiteSpace(serviceBusConfiguration.ConnectionString))
                 {

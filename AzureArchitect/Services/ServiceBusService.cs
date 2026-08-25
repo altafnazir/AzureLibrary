@@ -45,9 +45,9 @@ namespace AzureArchitect.Services
             {
                 _adminClient.GetNamespacePropertiesAsync().GetAwaiter().GetResult();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                throw new InvalidOperationException("Service Bus namespace is not reachable or does not exist.", ex);
+                throw;
             }
         }
 

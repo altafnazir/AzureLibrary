@@ -9,6 +9,7 @@ namespace AzureServices.Enums
     public enum ConnectionSourceEnum
     {
         KeyVault,
-        AppSettings
+        AppSettings,
+        ManagedIdentity
     }
 }
