@@ -241,7 +241,20 @@ namespace AzureAPINew.Controllers
                 return NotFound(new { Error = ex.Message });
             }
         }
+        [HttpGet("Ping")]
+        public IActionResult Ping()
+        {
+            // Log invocation for diagnostics
+            _logger.LogInformation("Ping endpoint invoked.");
 
+            // Return a small static payload useful for automated tests
+            return Ok(new
+            {
+                Message = "Static test OK",
+                TimestampUtc = System.DateTime.UtcNow,
+                Endpoint = "ServiceBusController/Ping"
+            });
+        }
         #endregion Receive Message
 
     }
