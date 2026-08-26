@@ -37,37 +37,37 @@ namespace AzureArchitect.Extensions
 
             var serviceBusConfiguration = configService.Get<ServiceBusConfiguration>();
 
-            if (serviceBusConfiguration == null)
-                throw new InvalidOperationException("ServiceBus configuration section is missing or has invalid structure.");
-
             var validator = new ServiceBusConfigurationValidator();
             var validation = validator.Validate(Options.DefaultName, serviceBusConfiguration);
             
             if (validation.Failed)
                 throw new InvalidOperationException("ServiceBus configuration invalid: " + string.Join("; ", validation.Failures));
 
-            var vaultUri = serviceBusConfiguration.KeyVault?.VaultUri;
-
-            var secretName = serviceBusConfiguration.KeyVault?.SecretName;
-
             var connectionString = string.Empty;
 
-            // Build a KeyVault options instance from the ServiceBus configuration (if present).
-            var keyVaultOptionsInstance = serviceBusConfiguration.KeyVault ?? new KeyVault
-            {
-                VaultUri = null
-            };
-
-            var options = Options.Create(keyVaultOptionsInstance);
-
-            var logger = services.BuildServiceProvider().GetRequiredService<ILogger<KeyVaultService>>();
-            var keyVaultService = new KeyVaultService(options, logger);
+            var retryOptions = serviceBusConfiguration.RetryOptions;
+            var clientOptions = new ServiceBusClientOptions { RetryOptions = retryOptions };
 
             switch (serviceBusConfiguration.ConnectionSource)
             {
                 case nameof(ConnectionSourceEnum.KeyVault):
+
+                    var vaultUri = serviceBusConfiguration.KeyVault?.VaultUri;
+                    var secretName = serviceBusConfiguration.KeyVault?.SecretName;
+                    var logger = services.BuildServiceProvider().GetRequiredService<ILogger<KeyVaultService>>();
+
                     try
                     {
+
+                        // Build a KeyVault options instance from the ServiceBus configuration (if present).
+                        var keyVaultOptionsInstance = serviceBusConfiguration.KeyVault ?? new KeyVault
+                        {
+                            VaultUri = null
+                        };
+
+                        var options = Options.Create(keyVaultOptionsInstance);
+
+                        var keyVaultService = new KeyVaultService(options, logger);
                         var secretValue = keyVaultService.GetSecretAsync(secretName!).Result.Value;
 
                         if (string.IsNullOrWhiteSpace(secretValue))
@@ -76,6 +76,9 @@ namespace AzureArchitect.Extensions
                         }
 
                         connectionString = secretValue;
+
+                        services.AddSingleton(new ServiceBusClient(connectionString, clientOptions));
+                        services.AddSingleton(new ServiceBusAdministrationClient(connectionString));
                     }
                     catch (AuthenticationFailedException ex)
                     {
@@ -93,6 +96,26 @@ namespace AzureArchitect.Extensions
 
                 case nameof(ConnectionSourceEnum.AppSettings):
                     connectionString = serviceBusConfiguration.ConnectionString;
+
+                    //Best practice is to use Managed Identity instead of connectionstring
+
+                    services.AddSingleton(new ServiceBusClient(connectionString, clientOptions));
+                    services.AddSingleton(new ServiceBusAdministrationClient(connectionString));
+
+                    break;
+
+                case nameof(ConnectionSourceEnum.ManagedIdentity):
+
+                    var credentialOptions = new DefaultAzureCredentialOptions
+                    {
+                        // When running locally in Development, avoid Managed Identity probing which can add latency
+                        ExcludeManagedIdentityCredential = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development"
+                    };
+
+                    var credential = new DefaultAzureCredential(credentialOptions);
+                    services.AddSingleton(new ServiceBusClient(serviceBusConfiguration.Uri, credential, clientOptions));
+                    services.AddSingleton(new ServiceBusAdministrationClient(serviceBusConfiguration.Uri, credential));
+
                     break;
             }
 
@@ -102,34 +125,7 @@ namespace AzureArchitect.Extensions
                     new ConfigurationService(configuration, sp.GetService<ILogger<ConfigurationService>>()));
             }
 
-            var retryOptions = serviceBusConfiguration.RetryOptions;
-            var clientOptions = new ServiceBusClientOptions { RetryOptions = retryOptions };
-
             var serviceBusProcessorOptions = serviceBusConfiguration.ProcessorOptions;
-
-            try
-            {
-                //Best practice is to use Managed Identity instead of connectionstring
-                //services.AddSingleton(new ServiceBusClient(connectionString, clientOptions));
-                var credentialOptions = new DefaultAzureCredentialOptions
-                {
-                    // When running locally in Development, avoid Managed Identity probing which can add latency
-                    ExcludeManagedIdentityCredential = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development"
-                };
-
-                var credential = new DefaultAzureCredential(credentialOptions);
-                services.AddSingleton(new ServiceBusClient(serviceBusConfiguration.Uri, credential));
-                services.AddSingleton(new ServiceBusAdministrationClient(serviceBusConfiguration.Uri, credential));
-            }
-            catch (Exception)
-            {
-                var msg = $"Failed to create Service Bus clients with the configured connection string. " +
-                              $"Verify if connectionstring for servicebus is valid.";
-
-                Console.WriteLine(msg);
-
-                throw;
-            }
 
             services.AddSingleton(serviceBusProcessorOptions ?? new ServiceBusProcessorOptions());
 

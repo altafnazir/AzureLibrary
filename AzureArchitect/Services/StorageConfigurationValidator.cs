@@ -10,13 +10,13 @@ using System.Threading.Tasks;
 
 namespace AzureServices.Services
 {
-    public class ServiceBusConfigurationValidator : AzureConfigurationValidator, IValidateOptions<ServiceBusConfiguration>
+    public class StorageConfigurationValidator : AzureConfigurationValidator, IValidateOptions<StorageConfiguration>
     {
-        public ValidateOptionsResult Validate(string? name, ServiceBusConfiguration serviceBusConfiguration)
+        public ValidateOptionsResult Validate(string? name, StorageConfiguration serviceBusConfiguration)
         {
             if (serviceBusConfiguration == null)
             {
-                return ValidateOptionsResult.Fail("ServiceBus configuration section is missing or has invalid structure.");
+                return ValidateOptionsResult.Fail("Storage configuration section is missing or has invalid structure.");
             }
 
             var baseValidationOptionResult = base.Validate(name, serviceBusConfiguration);

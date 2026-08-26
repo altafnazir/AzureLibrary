@@ -31,7 +31,7 @@ using IHost host = Host.CreateDefaultBuilder(args)
                     {
                         try
                         {
-                            services.AddServiceBusLibrary(context.Configuration);
+                            //services.AddServiceBusLibrary(context.Configuration);
                             //services.AddStorageLibrary(context.Configuration);
                         }
                         catch (Exception ex)

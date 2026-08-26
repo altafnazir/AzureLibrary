@@ -1,7 +1,7 @@
 namespace AzureServices.Entity
 {
-    public class StorageConfiguration
+    public class StorageConfiguration: AzureConfiguration
     {
-        public string? ConnectionString { get; set; }
+
     }
 }

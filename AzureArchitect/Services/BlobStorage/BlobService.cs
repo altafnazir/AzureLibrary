@@ -19,26 +19,13 @@ namespace AzureArchitect.Services.BlobStorage
     {
         private readonly BlobServiceClient _client;
         private readonly ILogger<BlobService> _logger;
-        private readonly string _connectionString;
+        private readonly string _connectionString;        
 
-        public BlobService(IOptions<StorageConfiguration> options, ILogger<BlobService> logger)
+        public BlobService(StorageConfiguration storageConfiguration, BlobServiceClient blobServiceClient, ILogger<BlobService> logger)
         {
-            var cfg = options?.Value ?? throw new ArgumentNullException(nameof(options));
-            if (string.IsNullOrWhiteSpace(cfg.ConnectionString)) throw new ArgumentException("Storage connection string is not configured.");
-
-            _client = new BlobServiceClient(cfg.ConnectionString);
-
-            //var credentialOptions = new DefaultAzureCredentialOptions
-            //{
-            //    // When running locally in Development, avoid Managed Identity to make it working
-            //    ExcludeManagedIdentityCredential = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == "Development"
-            //};
-
-            //var credential = new DefaultAzureCredential(credentialOptions);
-            //_client = new BlobServiceClient(new Uri("https://learnstorage2026.blob.core.windows.net"), credential);
-
+            _connectionString = storageConfiguration.ConnectionString!;
+            _client = blobServiceClient;
             _logger = logger;
-            _connectionString = cfg.ConnectionString;
         }
 
         public async Task CreateContainerIfNotExistsAsync(string containerName, CancellationToken cancellationToken = default)
@@ -158,7 +145,7 @@ namespace AzureArchitect.Services.BlobStorage
             if (expiresIn <= TimeSpan.Zero) throw new ArgumentException("expiresIn must be a positive TimeSpan.", nameof(expiresIn));
 
             // Parse connection string for shared key
-            if (!TryParseConnectionStringForSharedKey(_connectionString, out var accountName, out var accountKey))
+            if (!TryParseConnectionStringForSharedKey(out var accountName, out var accountKey))
             {
                 throw new InvalidOperationException("Cannot generate SAS: connection string does not contain AccountName and AccountKey (shared key required).");
             }
@@ -194,15 +181,15 @@ namespace AzureArchitect.Services.BlobStorage
             return uri;
         }
 
-        private static bool TryParseConnectionStringForSharedKey(string connectionString, out string? accountName, out string? accountKey)
+        private bool TryParseConnectionStringForSharedKey(out string? accountName, out string? accountKey)
         {
             accountName = null;
             accountKey = null;
 
-            if (string.IsNullOrWhiteSpace(connectionString)) return false;
+            if (string.IsNullOrWhiteSpace(_connectionString)) return false;
 
             // connection string format: key1=value1;key2=value2;...
-            var parts = connectionString.Split(';', StringSplitOptions.RemoveEmptyEntries);
+            var parts = _connectionString.Split(';', StringSplitOptions.RemoveEmptyEntries);
             foreach (var part in parts)
             {
                 var idx = part.IndexOf('=');
@@ -526,7 +513,7 @@ namespace AzureArchitect.Services.BlobStorage
         // Try to determine account name: prefer parsing connection string, fall back to blob service host
         private string GetAccountName()
         {
-            if (TryParseConnectionStringForSharedKey(_connectionString, out var accountName, out _))
+            if (TryParseConnectionStringForSharedKey(out var accountName, out _))
             {
                 if (!string.IsNullOrWhiteSpace(accountName)) return accountName;
             }
