@@ -32,7 +32,7 @@ using IHost host = Host.CreateDefaultBuilder(args)
                         try
                         {
                             //services.AddServiceBusLibrary(context.Configuration);
-                            //services.AddStorageLibrary(context.Configuration);
+                            services.AddStorageLibrary(context.Configuration);
                         }
                         catch (Exception ex)
                         {
@@ -195,7 +195,7 @@ var testDepartment = new[] { "HR", "IT", "Finance" };
 
 #region Storage
 
-//var storageService = host.Services.GetRequiredService<IBlobService>();
+var storageService = host.Services.GetRequiredService<IBlobService>();
 try
 {
     var blobName = "sample.txt";
@@ -203,10 +203,12 @@ try
     var localPath = @"C:\temp\sample.txt";
 
     //Upload a file
-    //await using (var fs = File.OpenRead(localPath))
-    //{
-    //    await storageService.UploadAsync(containerName, blobName, fs);
-    //}
+    await using (var fs2 = File.OpenRead(localPath))
+    {
+        await storageService.UploadAsync(containerName, blobName, fs2);
+    }
+
+    logger.LogInformation("File uploaded.");
 
     //var fileList = new List<FileToUpload>();
 
@@ -222,7 +224,7 @@ try
 
     //await storageService.BulkUploadAsync(containerName, fileList);
 
-    //Upload from file path
+    ////Upload from file path
     //await storageService.UploadFromFileAsync(containerName, blobName, localPath);
 
     //await storageService.BulkUploadFromFileAsync(containerName, new List<string> { @"C:\temp\sample.txt", @"C:\temp\sample_downloaded.txt" });
@@ -233,16 +235,16 @@ try
 
     ////Generate SAS Url
     //var sasUri = await storageService.GenerateBlobSasUri(containerName, blobName, TimeSpan.FromMinutes(minutes));
-    //var sasUri = await storageService.GenerateUserDelegationSasUriAsync(containerName, blobName, TimeSpan.FromMinutes(minutes));
+    //var sasUri2 = await storageService.GenerateUserDelegationSasUriAsync(containerName, blobName, TimeSpan.FromMinutes(minutes));
 
     //logger.LogInformation($"Blob SAS URI (valid {minutes} minutes): {sasUri}");
 
-    // Download to a file
+    ////Download to a file
     //await storageService.DownloadToFileAsync(containerName, blobName, @"C:\temp\sample_downloaded4.txt");
 
     //logger.LogInformation("File downloaded.");
 
-    // Delete blob
+    ////Delete blob
     //await storageService.DeleteAsync(containerName, "sample3.txt");
     //logger.LogInformation("File deleted.");
 
@@ -253,7 +255,7 @@ try
     //    logger.LogInformation($"{md.Key} : {md.Value}");
     //}
 
-    //IDictionary<string, string?> metadata=new Dictionary<string, string?>();
+    //IDictionary<string, string?> metadata = new Dictionary<string, string?>();
     //metadata.Add("md", "789");
     //metadata.Add("test", "123");
     //await storageService.SetMetadataAsync(containerName, "sample.txt", metadata!);
@@ -265,7 +267,7 @@ try
     //    Console.WriteLine($"{blob.Name} : {blob.Properties.ContentLength} bytes");
     //}
 
-    //Copy from URL
+    ////Copy from URL
     //var copyID = await storageService.StartCopyFromUriAsync(containerName, "AllanDonald.jpg", new Uri("https://www.sporting-heroes.net/content/thumbnails/00013/01186-zoom.jpg"));
 
     //Console.WriteLine($"File copied {copyID}");

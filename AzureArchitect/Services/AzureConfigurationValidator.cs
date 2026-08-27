@@ -67,6 +67,13 @@ namespace AzureServices.Services
                     failures.Add("ConnectionString is required when ConnectionSource is not 'KeyVault'.");
                 }
             }
+            else if(connectionSource == ConnectionSourceEnum.ManagedIdentity)
+            {
+                if (!Uri.TryCreate(azureConfiguration.Uri, UriKind.Absolute, out var uri) || uri.Scheme != Uri.UriSchemeHttps)
+                {
+                    failures.Add("Uri must be an absolute HTTPS URI.");
+                }
+            }
 
             if (failures.Count > 0)
             {

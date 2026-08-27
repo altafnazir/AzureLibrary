@@ -1,15 +1,5 @@
-
-using Azure.Messaging.ServiceBus;
-using Azure.Messaging.ServiceBus.Administration;
 using AzureArchitect.Extensions;
-using AzureArchitect.Facade;
-using AzureArchitect.Services;
-using AzureServices.Entity;
-using Microsoft.OpenApi;
 using Microsoft.OpenApi.Models;
-using Swashbuckle.AspNetCore.Swagger;
-using Swashbuckle.AspNetCore.SwaggerGen;
-using Swashbuckle.AspNetCore.SwaggerUI;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,14 +19,21 @@ builder.Services.AddSwaggerGen(c =>
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 //builder.Services.AddOpenApi();
 {
+    // Create a logger factory for startup-time logging (before the app is built)
+    using var loggerFactory = LoggerFactory.Create(lb => lb.AddConsole());
+    var logger = loggerFactory.CreateLogger("Program");
+
     try
     {
-        builder.Services.AddServiceBusLibrary(builder.Configuration);
+        logger.LogInformation("Configuring Service Bus library...");
+        //builder.Services.AddServiceBusLibrary(builder.Configuration);
+        builder.Services.AddStorageLibrary(builder.Configuration);
+        logger.LogInformation("Service Bus library configured successfully.");
     }
     catch (Exception ex)
     {
-        Console.Write(ex.Message);
-        throw new Exception(ex.Message);
+        logger.LogError(ex, "Failed to configure Service Bus library.");
+        throw;
     }
 
     Azure.Core.Diagnostics.AzureEventSourceListener.CreateConsoleLogger();

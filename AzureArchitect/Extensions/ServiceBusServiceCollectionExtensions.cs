@@ -41,7 +41,7 @@ namespace AzureArchitect.Extensions
             var validation = validator.Validate(Options.DefaultName, serviceBusConfiguration);
             
             if (validation.Failed)
-                throw new InvalidOperationException("ServiceBus configuration invalid: " + string.Join("; ", validation.Failures));
+                throw new InvalidDataException("ServiceBus configuration invalid: " + string.Join("; ", validation.Failures));
 
             var connectionString = string.Empty;
 
