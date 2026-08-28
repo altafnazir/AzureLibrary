@@ -31,8 +31,8 @@ using IHost host = Host.CreateDefaultBuilder(args)
                     {
                         try
                         {
-                            //services.AddServiceBusLibrary(context.Configuration);
-                            services.AddStorageLibrary(context.Configuration);
+                            services.AddServiceBusLibrary(context.Configuration);
+                            //services.AddStorageLibrary(context.Configuration);
                         }
                         catch (Exception ex)
                         {
@@ -58,12 +58,12 @@ logger.LogInformation("Host built; ServiceBus client configured.");
 
 #region Service Bus
 
-//var serviceBusService = host.Services.GetRequiredService<IServiceBusService>();
-//var messagingService = host.Services.GetRequiredService<IMessagingService>();
+var serviceBusService = host.Services.GetRequiredService<IServiceBusService>();
+var messagingService = host.Services.GetRequiredService<IMessagingService>();
 
 #region Admin
 
-//await messagingService.CreateQueueAsync(queueName);
+await messagingService.CreateQueueAsync(queueName);
 //await messagingService.CreateTopicAsync(topicName);
 
 //foreach (var vd in validDepartments)
@@ -150,21 +150,21 @@ var testDepartment = new[] { "HR", "IT", "Finance" };
 
 #region Send
 
-//ServiceBusData message = new ServiceBusData
-//{
-//    Id = 2,
-//    Department = "HR",
-//    Title = "Welcome",
-//    Body = $"This is test message."
-//};
+ServiceBusData message = new ServiceBusData
+{
+    Id = 2,
+    Department = "HR",
+    Title = "Welcome",
+    Body = $"This is test message."
+};
 
-//var messageJson = JsonSerializer.Serialize(message);
-//for (int i = 0; i < 5; i++)
-//{
-//    await messagingService.SendMessageAsync(queueName, messageJson);
-//}
+var messageJson = JsonSerializer.Serialize(message);
+for (int i = 0; i < 5; i++)
+{
+    await messagingService.SendMessageAsync(queueName, messageJson);
+}
 
-//Console.WriteLine($"Message sent to queue: {queueName}");
+Console.WriteLine($"Message sent to queue: {queueName}");
 
 #endregion Send
 
@@ -195,20 +195,20 @@ var testDepartment = new[] { "HR", "IT", "Finance" };
 
 #region Storage
 
-var storageService = host.Services.GetRequiredService<IBlobService>();
+//var storageService = host.Services.GetRequiredService<IBlobService>();
 try
 {
-    var blobName = "sample.txt";
-    var containerName = "createdfromcode";
-    var localPath = @"C:\temp\sample.txt";
+    //var blobName = "sample.txt";
+    //var containerName = "createdfromcode";
+    //var localPath = @"C:\temp\sample.txt";
 
-    //Upload a file
-    await using (var fs2 = File.OpenRead(localPath))
-    {
-        await storageService.UploadAsync(containerName, blobName, fs2);
-    }
+    ////Upload a file
+    //await using (var fs2 = File.OpenRead(localPath))
+    //{
+    //    await storageService.UploadAsync(containerName, blobName, fs2);
+    //}
 
-    logger.LogInformation("File uploaded.");
+    //logger.LogInformation("File uploaded.");
 
     //var fileList = new List<FileToUpload>();
 

@@ -13,6 +13,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FunctionApps", "..\Function
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Resources", "..\Resources\Resources.csproj", "{38011A46-04A0-416A-B3A8-D943C8E18DC4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BlazorApp1", "..\BlazorApp1\BlazorApp1.csproj", "{B913877C-56ED-4FDE-B526-86325C116209}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DummyAPI", "..\DummyAPI\DummyAPI.csproj", "{E16155E8-E9CD-4FD0-BB0A-97615ED2C3C6}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,6 +43,14 @@ Global
 		{38011A46-04A0-416A-B3A8-D943C8E18DC4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{38011A46-04A0-416A-B3A8-D943C8E18DC4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{38011A46-04A0-416A-B3A8-D943C8E18DC4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B913877C-56ED-4FDE-B526-86325C116209}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B913877C-56ED-4FDE-B526-86325C116209}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B913877C-56ED-4FDE-B526-86325C116209}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B913877C-56ED-4FDE-B526-86325C116209}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E16155E8-E9CD-4FD0-BB0A-97615ED2C3C6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E16155E8-E9CD-4FD0-BB0A-97615ED2C3C6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E16155E8-E9CD-4FD0-BB0A-97615ED2C3C6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E16155E8-E9CD-4FD0-BB0A-97615ED2C3C6}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
