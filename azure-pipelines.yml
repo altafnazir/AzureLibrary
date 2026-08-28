@@ -33,6 +33,11 @@ steps:
     archiveFile: '$(Build.ArtifactStagingDirectory)/DummyAPI.zip'
     replaceExistingArchive: true
 
+- powershell: |
+    Write-Host "ZIP files:"
+    Get-ChildItem "$(Build.ArtifactStagingDirectory)" -Recurse |
+      ForEach-Object { Write-Host $_.FullName }
+  displayName: 'Check deployment files'
 
 - task: AzureWebApp@1
   inputs:
