@@ -23,6 +23,7 @@ steps:
     publishWebProjects: false
     projects: '**/DummyAPI.csproj'
     arguments: '--configuration Release --output $(Build.ArtifactStagingDirectory)/DummyAPI'
+    zipAfterPublish: false
 
 
 - task: ArchiveFiles@2
