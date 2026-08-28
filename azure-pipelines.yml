@@ -33,6 +33,7 @@ steps:
     archiveFile: '$(Build.ArtifactStagingDirectory)/DummyAPI.zip'
     replaceExistingArchive: true
 
+
 - task: AzureWebApp@1
   inputs:
     azureSubscription: 'Pay-As-You-Go(886ab17f-b344-4db5-9b16-d7768b64f994)'
