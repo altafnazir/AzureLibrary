@@ -26,8 +26,8 @@ builder.Services.AddSwaggerGen(c =>
     try
     {
         logger.LogInformation("Configuring Service Bus library...");
-        //builder.Services.AddServiceBusLibrary(builder.Configuration);
-        builder.Services.AddStorageLibrary(builder.Configuration);
+        builder.Services.AddServiceBusLibrary(builder.Configuration);
+        //builder.Services.AddStorageLibrary(builder.Configuration);
         logger.LogInformation("Service Bus library configured successfully.");
     }
     catch (Exception ex)
