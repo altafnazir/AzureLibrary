@@ -46,4 +46,4 @@ steps:
     appType: 'webApp'
     appName: 'azurewebapplearning'
     package: '$(Build.ArtifactStagingDirectory)/DummyAPI.zip'
-    deploymentMethod: 'auto'
+    deploymentMethod: 'zipDeploy'
