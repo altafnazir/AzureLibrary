@@ -36,16 +36,13 @@ steps:
     archiveFile: '$(Build.ArtifactStagingDirectory)/$(apiProject).zip'
     replaceExistingArchive: true
 
-- powershell: |
-    Write-Host "ZIP files:"
-    Get-ChildItem "$(Build.ArtifactStagingDirectory)" -Recurse |
-      ForEach-Object { Write-Host $_.FullName }
-  displayName: 'Check deployment files'
-
 - task: AzureWebApp@1
   inputs:
     azureSubscription: 'Pay-As-You-Go(886ab17f-b344-4db5-9b16-d7768b64f994)'
     appType: 'webApp'
     appName: 'azurewebapplearning'
     package: '$(Build.ArtifactStagingDirectory)/$(apiProject).zip'
-    deploymentMethod: 'zipDeploy'
+    deploymentMethod: 'auto'
+    deployToSlotOrASE: false
+    resourceGroupName: 'learnazure'
+    slotName: 'staging'
