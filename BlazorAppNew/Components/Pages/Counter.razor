@@ -1,0 +1,92 @@
+﻿@page "/counter"
+@rendermode InteractiveServer
+
+@using System.Net.Http.Json
+
+<PageTitle>Counter</PageTitle>
+
+<h1>Counter</h1>
+
+<p role="status">Current count: @currentCount</p>
+
+<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+<button class="btn btn-secondary ms-2" @onclick="CallWeatherApiAsync" disabled="@isCalling">
+    @(isCalling ? "Calling..." : "Call Weather API")
+</button>
+
+@if (!string.IsNullOrEmpty(apiError))
+{
+    <div class="alert alert-danger mt-3">@apiError</div>
+}
+else if (forecasts is not null)
+{
+    <div class="mt-3">
+        <h5>Weather results (@forecasts.Count)</h5>
+        <ul>
+            @foreach (var f in forecasts)
+            {
+                <li>@f.Date.ToString("u") — @f.TemperatureC °C — @f.Summary</li>
+            }
+        </ul>
+    </div>
+}
+
+@code {
+    private int currentCount = 0;
+
+    private bool isCalling = false;
+    private string? apiError;
+    private List<WeatherForecastDto>? forecasts;
+
+    [Inject]
+    private HttpClient Http { get; set; } = default!;
+
+    private void IncrementCount()
+    {
+        currentCount++;
+    }
+
+    private async Task CallWeatherApiAsync()
+    {
+        apiError = null;
+        forecasts = null;
+        isCalling = true;
+
+        try
+        {
+            // Full URL to your API
+            var url = "https://azurewebapplearning-g5dkfwdpgebqa0hq.southindia-01.azurewebsites.net/api/WeatherForecast";
+
+            // If the API returns JSON array of WeatherForecast objects, this will deserialize.
+            var result = await Http.GetFromJsonAsync<List<WeatherForecastDto>>(url);
+
+            if (result == null || result.Count == 0)
+            {
+                apiError = "No data returned from API.";
+            }
+            else
+            {
+                forecasts = result;
+            }
+        }
+        catch (HttpRequestException hx)
+        {
+            apiError = $"Request failed: {hx.Message}";
+        }
+        catch (NotSupportedException)
+        {
+            apiError = "The response content type is not supported.";
+        }
+        catch (System.Text.Json.JsonException jx)
+        {
+            apiError = $"Invalid JSON received: {jx.Message}";
+        }
+        finally
+        {
+            isCalling = false;
+            StateHasChanged();
+        }
+    }
+
+    private sealed record WeatherForecastDto(DateTime Date, int TemperatureC, string? Summary);
+}

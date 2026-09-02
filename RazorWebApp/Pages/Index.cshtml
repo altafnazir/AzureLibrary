@@ -1,0 +1,78 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+</div>
+
+<div class="mt-4">
+    <h2>Weather Forecast (from external API)</h2>
+    <div id="forecastContainer" class="mt-3">Loading forecasts...</div>
+</div>
+
+@section Scripts {
+    <script>
+        (async function loadForecasts() {
+            // Use a relative URL so the request goes to the same origin/protocol as the page.
+            // This avoids common dev issues: mixed-content, self-signed HTTPS cert blocking, and simple CORS mismatch.
+            const url = '/api/WeatherForecast';
+            const container = document.getElementById('forecastContainer');
+
+            function showMessage(html, isError) {
+                container.innerHTML = html;
+                if (isError) container.classList.add('text-danger'); else container.classList.remove('text-danger');
+            }
+
+            try {
+                const res = await fetch(url, {
+                    method: 'GET',
+                    headers: { 'Accept': 'application/json' },
+                    mode: 'same-origin', // explicit; for relative URLs this is the default
+                    cache: 'no-store'
+                });
+
+                if (!res.ok) {
+                    showMessage(`Failed to fetch forecasts. HTTP ${res.status} ${res.statusText}`, true);
+                    return;
+                }
+
+                const data = await res.json();
+
+                if (!Array.isArray(data) || data.length === 0) {
+                    showMessage('No forecasts returned by the API.');
+                    return;
+                }
+
+                // Build table
+                const table = document.createElement('table');
+                table.className = 'table table-striped table-bordered mt-2';
+                table.innerHTML = `<thead class="table-light"><tr><th>Date</th><th>Temp (°C)</th><th>Summary</th></tr></thead>`;
+
+                const tbody = document.createElement('tbody');
+
+                data.forEach(item => {
+                    const dateStr = item.date ? new Date(item.date).toLocaleString() : '';
+                    const tempC = (item.temperatureC !== undefined && item.temperatureC !== null) ? item.temperatureC : '';
+                    const summary = item.summary ?? '';
+
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `<td>${dateStr}</td><td>${tempC}</td><td>${summary}</td>`;
+                    tbody.appendChild(tr);
+                });
+
+                table.appendChild(tbody);
+                container.innerHTML = '';
+                container.appendChild(table);
+
+            } catch (err) {
+                // Give a hint on likely causes of a generic network error.
+                const hint = ' (possible causes: network down, CORS/certificate issue, or mixed-content blocking)';
+                showMessage('Error loading forecasts: ' + (err.message || err) + hint, true);
+            }
+        })();
+    </script>
+}
