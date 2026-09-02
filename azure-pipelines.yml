@@ -16,29 +16,3 @@ variables:
   apiProject: 'BlazorApp1'
 
 steps:
-
-- task: DotNetCoreCLI@2
-  inputs:
-    azureSubscription: 'Pay-As-You-Go(886ab17f-b344-4db5-9b16-d7768b64f994)'
-    command: 'publish'
-    publishWebProjects: false
-    projects: '**/$(apiProject).csproj'
-    arguments: '--configuration Release --output $(Build.ArtifactStagingDirectory)/$(apiProject)'
-    zipAfterPublish: false
-    modifyOutputPath: false
-
-- task: ArchiveFiles@2
-  inputs:
-    rootFolderOrFile: '$(Build.ArtifactStagingDirectory)/$(apiProject)'
-    includeRootFolder: false
-    archiveType: 'zip'
-    archiveFile: '$(Build.ArtifactStagingDirectory)/$(apiProject).zip'
-    replaceExistingArchive: true
-
-- task: AzureWebApp@1
-  inputs:
-    azureSubscription: 'Pay-As-You-Go(886ab17f-b344-4db5-9b16-d7768b64f994)'
-    appType: 'webApp'
-    appName: 'blazerapp'
-    package: '$(Build.ArtifactStagingDirectory)/$(apiProject).zip'
-    deploymentMethod: 'auto'
