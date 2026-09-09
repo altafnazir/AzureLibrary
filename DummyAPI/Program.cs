@@ -13,6 +13,15 @@ if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
 }
+app.MapGet("/debug/headers", (HttpRequest request) =>
+{
+    return Results.Ok(new
+    {
+        Host = request.Host.ToString(),
+        Scheme = request.Scheme,
+        Path = request.Path.ToString()
+    });
+});
 
 app.UseHttpsRedirection();
 
