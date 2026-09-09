@@ -23,7 +23,7 @@ app.MapGet("/debug/headers", (HttpRequest request) =>
     });
 });
 
-app.UseHttpsRedirection();
+//app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
