@@ -29,5 +29,21 @@ namespace DummyAPI.Controllers
             })
             .ToArray();
         }
+
+        [HttpGet("myinfo")]
+        public IEnumerable<dynamic> GetMyInfo()
+        {
+            var info = new List<dynamic>
+            {
+                new
+                {
+                    Name="Altaf Patel",
+                    Post="Technical Lead",
+                    TechStack=".NET"
+                }
+            };
+
+            return info;
+        }
     }
 }
