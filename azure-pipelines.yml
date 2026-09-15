@@ -10,6 +10,7 @@ pool:
   vmImage: 'windows-latest'
 
 variables:
+  azureSubscription: 'LearnAzureConnection'
   solution: '**/*.sln'
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
@@ -21,3 +22,37 @@ variables:
 
 steps:
 
+- task: DotNetCoreCLI@2
+  inputs:
+    azureSubscription: $(azureSubscription)
+    command: 'publish'
+    publishWebProjects: false
+    projects: '**/$(projectName).csproj'
+    arguments: '--configuration Release --output $(Build.ArtifactStagingDirectory)/$(projectName)'
+    zipAfterPublish: false
+    modifyOutputPath: false
+
+
+- task: ArchiveFiles@2
+  inputs:
+    rootFolderOrFile: '$(Build.ArtifactStagingDirectory)/$(projectName)'
+    includeRootFolder: false
+    archiveType: 'zip'
+    archiveFile: '$(Build.ArtifactStagingDirectory)/$(projectName).zip'
+    replaceExistingArchive: true
+
+- task: AzureWebApp@1
+  inputs:
+    azureSubscription: $(azureSubscription)
+    appType: 'webApp'
+    appName: '$(appName)'
+    package: '$(Build.ArtifactStagingDirectory)/$(projectName).zip'
+    deploymentMethod: 'auto'
+
+    ${{ if eq(variables.deployToSlotOrASE, true) }}:
+      deployToSlotOrASE: true
+      resourceGroupName: '$(resourceGroupName)'
+      slotName: '$(slotName)'
+
+    ${{ if eq(variables.deployToSlotOrASE, false) }}:
+      deployToSlotOrASE: false
