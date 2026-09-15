@@ -15,7 +15,7 @@ variables:
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
   projectName: 'DummyAPI'
-  appName: 'azurewebapplearning'
+  appName: 'apiwebapp'
   deployToSlotOrASE: false
   resourceGroupName: 'learnazure'
   slotName: 'mystaging'
