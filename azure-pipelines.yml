@@ -10,11 +10,12 @@ pool:
   vmImage: 'windows-latest'
 
 variables:
+  azureSubscription: 'LearnAzureConnection'
   solution: '**/*.sln'
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
-  projectName: 'DummyAPI'
-  appName: 'azurewebapplearning'
+  projectName: 'BlazorApp1'
+  appName: 'website1'
   deployToSlotOrASE: false
   resourceGroupName: 'learnazure'
   slotName: 'mystaging'
@@ -23,7 +24,7 @@ steps:
 
 - task: DotNetCoreCLI@2
   inputs:
-    azureSubscription: 'Pay-As-You-Go(886ab17f-b344-4db5-9b16-d7768b64f994)'
+    azureSubscription: $(azureSubscription)
     command: 'publish'
     publishWebProjects: false
     projects: '**/$(projectName).csproj'
@@ -42,7 +43,7 @@ steps:
 
 - task: AzureWebApp@1
   inputs:
-    azureSubscription: 'Pay-As-You-Go(886ab17f-b344-4db5-9b16-d7768b64f994)'
+    azureSubscription: $(azureSubscription)
     appType: 'webApp'
     appName: '$(appName)'
     package: '$(Build.ArtifactStagingDirectory)/$(projectName).zip'
@@ -55,4 +56,3 @@ steps:
 
     ${{ if eq(variables.deployToSlotOrASE, false) }}:
       deployToSlotOrASE: false
-
