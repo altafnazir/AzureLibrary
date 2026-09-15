@@ -55,7 +55,7 @@ else if (forecasts is not null)
         try
         {
             // Full URL to your API
-            var url = "https://azurewebapplearning-g5dkfwdpgebqa0hq.southindia-01.azurewebsites.net/api/WeatherForecast";
+            var url = "https://apiwebapp-hebzatejengkceb4.southindia-01.azurewebsites.net/api/WeatherForecast";
 
             // If the API returns JSON array of WeatherForecast objects, this will deserialize.
             var result = await Http.GetFromJsonAsync<List<WeatherForecastDto>>(url);
