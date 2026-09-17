@@ -15,11 +15,16 @@ if (app.Environment.IsDevelopment())
 }
 app.MapGet("/debug/headers", (HttpRequest request) =>
 {
+    using var client = new HttpClient();
+
+    var ip = client.GetStringAsync("https://api.ipify.org").Result;
+
     return Results.Ok(new
     {
         Host = request.Host.ToString(),
         Scheme = request.Scheme,
-        Path = request.Path.ToString()
+        Path = request.Path.ToString(),
+        IP = ip
     });
 });
 
