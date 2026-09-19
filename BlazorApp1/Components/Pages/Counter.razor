@@ -13,7 +13,11 @@
 <button class="btn btn-secondary ms-2" @onclick="CallWeatherApiAsync" disabled="@isCalling">
     @(isCalling ? "Calling..." : "Call Weather API")
 </button>
-
+<div>
+    <span>
+        @ipaddress
+    </span>
+</div>
 @if (!string.IsNullOrEmpty(apiError))
 {
     <div class="alert alert-danger mt-3">@apiError</div>
@@ -37,6 +41,7 @@ else if (forecasts is not null)
     private bool isCalling = false;
     private string? apiError;
     private List<WeatherForecastDto>? forecasts;
+    private string? ipaddress;
 
     [Inject]
     private HttpClient Http { get; set; } = default!;
@@ -55,19 +60,23 @@ else if (forecasts is not null)
         try
         {
             // Full URL to your API
-            var url = "https://apiwebapp-hebzatejengkceb4.southindia-01.azurewebsites.net/api/WeatherForecast";
+            // var url = "https://apiwebapp-hebzatejengkceb4.southindia-01.azurewebsites.net/api/WeatherForecast";
+
+            using var client = new HttpClient();
+
+            ipaddress = "IP is: " + client.GetStringAsync("https://api.ipify.org").Result;
 
             // If the API returns JSON array of WeatherForecast objects, this will deserialize.
-            var result = await Http.GetFromJsonAsync<List<WeatherForecastDto>>(url);
+            // var result = await Http.GetFromJsonAsync<List<WeatherForecastDto>>(ip);
 
-            if (result == null || result.Count == 0)
-            {
-                apiError = "No data returned from API.";
-            }
-            else
-            {
-                forecasts = result;
-            }
+            // if (result == null || result.Count == 0)
+            // {
+            //     apiError = "No data returned from API.";
+            // }
+            // else
+            // {
+            //     forecasts = result;
+            // }
         }
         catch (HttpRequestException hx)
         {
