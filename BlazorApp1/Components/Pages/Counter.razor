@@ -62,9 +62,14 @@ else if (forecasts is not null)
             // Full URL to your API
             // var url = "https://apiwebapp-hebzatejengkceb4.southindia-01.azurewebsites.net/api/WeatherForecast";
 
-            using var client = new HttpClient();
+            // using var client = new HttpClient();
 
-            ipaddress = "IP is: " + client.GetStringAsync("https://api.ipify.org").Result;
+            // ipaddress = "IP is: " + client.GetStringAsync("https://api.ipify.org").Result;
+
+            var addresses = System.Net.Dns.GetHostAddresses(
+                "apiwebapp-hebzatejengkceb4.southindia-01.azurewebsites.net");
+
+            ipaddress= string.Join(", ", addresses.Select(x => x.ToString()));
 
             // If the API returns JSON array of WeatherForecast objects, this will deserialize.
             // var result = await Http.GetFromJsonAsync<List<WeatherForecastDto>>(ip);
