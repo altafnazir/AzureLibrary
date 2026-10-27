@@ -14,8 +14,8 @@ variables:
   solution: '**/*.sln'
   buildPlatform: 'Any CPU'
   buildConfiguration: 'Release'
-  projectName: 'BlazorApp1'
-  appName: 'website1'
+  projectName: 'DummyAPI'
+  appName: 'apiwebapp'
   deployToSlotOrASE: false
   resourceGroupName: 'learnazure'
   slotName: 'mystaging'
