@@ -1,4 +1,7 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Identity.Web;
+using Microsoft.Identity.Web.Resource;
 
 namespace DummyAPI.Controllers
 {
@@ -48,6 +51,19 @@ namespace DummyAPI.Controllers
             };
 
             return info;
+        }
+
+        [Authorize]
+        [HttpGet("getorders")]
+        [RequiredScope("api.read")]
+        //[Authorize(Roles = "Orders.Read.All")]
+        public IActionResult GetOrders()
+        {
+            return Ok(new[]
+            {
+            new { Id = 1, Product = "Laptop" },
+            new { Id = 2, Product = "Keyboard" }
+        });
         }
     }
 }
