@@ -60,6 +60,4 @@ app.UseHttpsRedirection();
 
 app.MapControllers();
 
-app.MapGet("/diag", () => "OrderApi is running from the latest deployment");
-
 app.Run();
