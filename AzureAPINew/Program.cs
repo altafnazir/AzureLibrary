@@ -42,8 +42,8 @@ builder.Services.AddSwaggerGen(c =>
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
-{
+//if (app.Environment.IsDevelopment())
+//{
     //app.MapOpenApi();
     app.UseSwagger();
     app.UseSwaggerUI(c =>
@@ -52,7 +52,7 @@ if (app.Environment.IsDevelopment())
         // To host the UI at the app root, uncomment the next line:
         // c.RoutePrefix = string.Empty;
     });
-}
+//}
 
 app.UseHttpsRedirection();
 
