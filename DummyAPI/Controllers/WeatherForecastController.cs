@@ -37,6 +37,23 @@ namespace DummyAPI.Controllers
             .ToArray();
         }
 
+        [HttpGet(Name = "WeatherForecastV2")]
+        public IEnumerable<WeatherForecastV2> WeatherForecastV2()
+        {
+            using var client = new HttpClient();
+
+            var ip = client.GetStringAsync("https://api.ipify.org").Result;
+
+            return Enumerable.Range(1, 5).Select(index => new WeatherForecastV2
+            {
+                Date = DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
+                TemperatureC = Random.Shared.Next(-20, 55),
+                Unit = "Celsius",
+                Summary = "IP Address is: " + ip
+            })
+            .ToArray();
+        }
+
         [HttpGet("myinfo")]
         public IEnumerable<dynamic> GetMyInfo()
         {
