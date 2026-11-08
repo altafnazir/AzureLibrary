@@ -21,7 +21,7 @@ namespace DummyAPI.Controllers
             _logger = logger;
         }
 
-        [HttpGet(Name = "GetWeatherForecast")]
+        [HttpGet("GetWeatherForecast")]
         public IEnumerable<WeatherForecast> Get()
         {
             using var client = new HttpClient();
@@ -37,7 +37,7 @@ namespace DummyAPI.Controllers
             .ToArray();
         }
 
-        [HttpGet(Name = "WeatherForecastV2")]
+        [HttpGet("WeatherForecastV2")]
         public IEnumerable<WeatherForecastV2> WeatherForecastV2()
         {
             using var client = new HttpClient();
