@@ -11,5 +11,7 @@ namespace DummyAPI
         public string Unit { get; set; } = "Celsius";
 
         public string? Summary { get; set; }
+
+        public string Test { get; set; } = "V2";
     }
 }
