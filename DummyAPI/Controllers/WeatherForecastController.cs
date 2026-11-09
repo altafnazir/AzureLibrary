@@ -82,5 +82,16 @@ namespace DummyAPI.Controllers
             new { Id = 2, Product = "Keyboard" }
         });
         }
+
+        [HttpGet("CheckHeaders")]
+        public IActionResult CheckHeaders()
+        {
+            var source = Request.Headers["X-Source"].ToString();
+
+            return Ok(new
+            {
+                ReceivedHeader = source
+            });
+        }
     }
 }
