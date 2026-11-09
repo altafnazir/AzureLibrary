@@ -94,5 +94,15 @@ namespace DummyAPI.Controllers
                 Response = source
             });
         }
+
+        [HttpGet("getitems")]
+        public IActionResult GetItems()
+        {
+            return Ok(new[]
+            {
+            new { Id = 1, Product = "Laptop" },
+            new { Id = 2, Product = "Keyboard" }
+        });
+        }
     }
 }
