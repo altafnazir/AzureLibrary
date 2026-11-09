@@ -104,5 +104,10 @@ namespace DummyAPI.Controllers
             new { Id = 2, Product = "Keyboard" }
         });
         }
+        [HttpGet("PlainText")]
+        public IActionResult PlainText()
+        {
+            return Content("Operation successful", "text/plain");
+        }
     }
 }
