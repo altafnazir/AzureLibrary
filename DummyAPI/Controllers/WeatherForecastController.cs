@@ -90,7 +90,8 @@ namespace DummyAPI.Controllers
 
             return Ok(new
             {
-                ReceivedHeader = source
+                ReceivedHeader = source,
+                Response = source
             });
         }
     }
