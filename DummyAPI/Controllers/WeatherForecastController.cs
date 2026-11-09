@@ -109,5 +109,18 @@ namespace DummyAPI.Controllers
         {
             return Content("Operation successful", "text/plain");
         }
+        [HttpGet("EmptyResponse")]
+        public IActionResult EmptyResponse()
+        {
+            return NoContent();
+        }
+        [HttpGet("MalformedJson")]
+        public IActionResult MalformedJson()
+        {
+            return Content(
+                "{\"name\":\"Order\",\"price\":",
+                "application/json"
+            );
+        }
     }
 }
