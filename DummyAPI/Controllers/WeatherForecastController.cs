@@ -142,5 +142,15 @@ namespace DummyAPI.Controllers
 
             return Content(xml, "application/xml");
         }
+        [HttpGet("DelayedResponse")]
+        public async Task<IActionResult> DelayedResponse()
+        {
+            await Task.Delay(TimeSpan.FromSeconds(40));
+
+            return Ok(new
+            {
+                message = "Response received after 40 seconds"
+            });
+        }
     }
 }
