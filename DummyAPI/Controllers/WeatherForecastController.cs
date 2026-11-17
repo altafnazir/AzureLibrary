@@ -152,5 +152,27 @@ namespace DummyAPI.Controllers
                 message = "Response received after 40 seconds"
             });
         }
+        private static int _retryAttempt = 0;
+
+        [HttpGet("RetryTest")]
+        public IActionResult RetryTest()
+        {
+            int attempt = Interlocked.Increment(ref _retryAttempt);
+
+            if (attempt <= 2)
+            {
+                return StatusCode(503, new
+                {
+                    attempt,
+                    message = "Temporary service unavailable"
+                });
+            }
+
+            return Ok(new
+            {
+                attempt,
+                message = "Service recovered successfully"
+            });
+        }
     }
 }
