@@ -128,5 +128,19 @@ namespace DummyAPI.Controllers
         {
             return Ok(request);
         }
+        [HttpGet("XmlOrder")]
+        public IActionResult XmlOrder()
+        {
+            var xml = """
+                        <Order>
+                            <OrderId>101</OrderId>
+                            <Customer>John</Customer>
+                            <Product>Laptop</Product>
+                            <Price>50000</Price>
+                        </Order>
+                        """;
+
+            return Content(xml, "application/xml");
+        }
     }
 }
